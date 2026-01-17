@@ -29,8 +29,17 @@ namespace terrence_hwc
             std::string device = "";
             int baud_rate = 0;
             int timeout_ms = 0;
-        }
+            int pid_p = 0;
+            int pid_d = 0;
+            int pid_i = 0;
+            int pid_o = 0;
+        };
 
+        struct Commands
+        {
+            double left_wheel_cmd = 0.0
+            double right_wheel_cmd = 0.0
+        };
 
         public:
             RCLCPP_SHARED_PTR_DEFINITIONS(TerrenceHWC)
@@ -56,7 +65,9 @@ namespace terrence_hwc
                 const rclcpp::Time & time, const rclcpp::Duration & period) override;
         
         private:
+            ArduinoComms comms_;
             Config config_;
+            Commands commands_;
     }
 }   // namespace terrence_hwc
 

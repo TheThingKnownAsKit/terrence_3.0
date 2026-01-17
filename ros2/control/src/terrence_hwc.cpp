@@ -27,8 +27,17 @@ namespace terrence_hwc {
         config_.device = info_.hardware_parameters["device"];
         config_.baud_rate = info_.hardware_parameters["baud_rate"]
         config_.timeout_ms = info_.hardware_parameters["timeout_ms"]
-
-        wheel_l_.setup(config_.left_wheel_name, config_.enc)
+        if (info_.hardware_parameters.count("pid_p") > 0)
+        {
+            cfg_.pid_p = std::stoi(info_.hardware_parameters["pid_p"]);
+            cfg_.pid_d = std::stoi(info_.hardware_parameters["pid_d"]);
+            cfg_.pid_i = std::stoi(info_.hardware_parameters["pid_i"]);
+            cfg_.pid_o = std::stoi(info_.hardware_parameters["pid_o"]);
+        }
+        else
+        {
+            RCLCPP_INFO(rclcpp::get_logger("TerrenceHWC"), "PID values not supplied, using defaults.");
+        }
 
         for (const hardware_interface::ComponentInfo & joint : info_.joints)
         {
@@ -82,16 +91,95 @@ namespace terrence_hwc {
         return hardware_interface::CallbackReturn::SUCCESS;
     }
 
-    std::vector:<hardware_interface::StateInterface> TerrenceHWC::export_state_interfaces()
+    // We should not have any state interfaces
+
+    std::vector<hardware_interface::CommandInterface> TerrenceHWC::export_command_interfaces()
     {
-        std::vector<hardware_interface::StateInterface> state_interfaces;
+        std::vector<hardware_interface::CommandInterface> command_interfaces;
 
-        state_interfaces.emplace_back(hardware_interface::StateInterface(
+        command_interfaces.emplace_back(hardware_interface::CommandInterface(
+            config_.left_wheel_name, hardware_interface::HW_IF_VELOCITY, &commands_.left_wheel_cmd
+        ));
 
-        ))
+        command_interfaces.emplace_back(hardware_interfaces::CommandInterface(
+            config_.right_wheel_name. hardware_interface::HW_IF_VELOCITY, &commands_.right_wheel_cmd
+        ));
+
+        return command_interfaces;
     }
 
+    hardware_interface::CallbackReturn TerrenceHWC::on_configure(
+        const rclcpp_lifecycle::State & /*previous_state*/)
+    {
+        RCLCPP_INFO(rclcpp::get_logger("TerrenceHWC"), "Configuring ... please wait ...");
+        if (comms_.connected())
+        {
+            comms_.disconnect();
+        }
+        comms_.connect(config_.device, config_.baud_rate, config_.timeout_ms);
+        RCLCPP_INFO(rclcpp::get_logger("TerrenceHWC"), "Successfully configured!");
 
+        return hardware_interface::CallbackReturn::SUCCESS;
+    }
+
+    hardware_interface::CallbackReturn TerrenceHWC::on_cleanup(
+        const rclcpp_lifecycle::State & /*previous_state*/)
+    {
+        RCLCPP_INFO(rclcpp::get_logger("TerrenceHWC"), "Cleaning up ... please wait ...");
+        if (comms_.connected())
+        {
+            comms_.disconnect();
+        }
+        RCLCPP_INFO(rclcpp::get_logger("TerrenceHWC"), "Successfully cleaned up!");
+
+        return hardware_interface::CallbackReturn::SUCCESS;
+    }
+
+    hardware_interface::CallbackReturn TerrenceHWC::on_activate(
+        const rclcpp_lifecycle::State & /*previous_state*/)
+    {
+        RCLCPP_INFO(rclcpp::get_logger("TerrenceHWC"), "Activating ... please wait ...");
+        if (!comms_.connected())
+        {
+            return hardware_interface::CallbackReturn::ERROR;
+        }
+        RCLCPP_INFO(rclcpp::get_logger("TerrenceHWC"), "Successfully activated!");
+
+        return hardware_interface::CallbackReturn::SUCCESS;
+    }
+
+    hardware_interface::CallbackReturn TerrenceHWC::on_deactivate(
+        const rclcpp_lifecycle::State & /*previous_state*/)
+    {
+        RCLCPP_INFO(rclcpp::get_logger("TerrenceHWC"), "Deactivating ... please wait ...");
+        RCLCPP_INFO(rclcpp::get_logger("TerrenceHWC"), "Successfully deactivated!");
+
+        return hardware_interface::CallbackReturn::SUCCESS;
+    }
+
+    hardware_interface::return_type TerrenceHWC::read(
+        const rclcpp::Time & /*time*/, const rclcpp::Duration & period)
+    {
+        if (!comms_.connected())
+        {
+            return hardware_interface::return_type::ERROR;
+        }
+
+        // we read nothing from serial
+
+        return hardware_interface::return_type::OK;
+    }
+
+    hardware_interface::return_type terrence_hwc ::TerrenceHWC::write(
+        const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
+    {
+        if (!comms_.connected())
+        {
+            return hardware_interface::return_type::ERROR;
+        }
+
+        
+    }
 
 } // namespace terrence_hwc
 

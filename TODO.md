@@ -1,5 +1,4 @@
-1. Refactor the urdf to actually work in this instance with the new hardware component
-2. Fill out method stubs for all of the hardware component that just return a noticeable message
+
 3. Fill out all the other ROS2 Control stuff like the controller yaml files
 4. Create launch files to test this empty hardware component
 5. Create an arduino comms toolkit for the teensy

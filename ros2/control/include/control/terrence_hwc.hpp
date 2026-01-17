@@ -16,6 +16,8 @@
 #include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
 #include "rclcpp_lifecycle/state.hpp"
 
+#include "control/arduino_comms.hpp"
+
 namespace terrence_hwc
 {
     class TerrenceHWC : public hardware_interface::SystemInterface
@@ -37,8 +39,8 @@ namespace terrence_hwc
 
         struct Commands
         {
-            double left_wheel_cmd = 0.0
-            double right_wheel_cmd = 0.0
+            double left_wheel_cmd = 0.0;
+            double right_wheel_cmd = 0.0;
         };
 
         public:
@@ -46,10 +48,10 @@ namespace terrence_hwc
 
             // Lifecycle
             hardware_interface::CallbackReturn on_init(
-                const hardware_interface::HardwareInfo & info) override;
+                const hardware_interface::HardwareComponentInterfaceParams & params) override;
             
             hardware_interface::CallbackReturn on_configure(
-                const rclcpp_lifecycle::State * previous_state) override;
+                const rclcpp_lifecycle::State & previous_state) override;
             
             hardware_interface::CallbackReturn on_activate(
                 const rclcpp_lifecycle::State & previous_state) override;
@@ -68,7 +70,7 @@ namespace terrence_hwc
             ArduinoComms comms_;
             Config config_;
             Commands commands_;
-    }
+    };
 }   // namespace terrence_hwc
 
 

@@ -12,27 +12,27 @@
 namespace terrence_hwc {
 
     hardware_interface::CallbackReturn TerrenceHWC::on_init(
-        const hardware_interface::HardwareInfo & info)
+        const hardware_interface::HardwareComponentInterfaceParams & params)
     {
         if (
-            hardware_interface::SystemInterface::on_init(info) !=
+            hardware_interface::SystemInterface::on_init(params) !=
             hardware_interface::CallbackReturn::SUCCESS)
         {
             return hardware_interface::CallbackReturn::ERROR;
         }
 
-        config_.left_wheel_name = info_.hardware_parameters["left_wheel_name"];
-        config_.right_wheel_name = info_.hardware_parameters["right_wheel_name"];
-        config_.loop_rate = info_.hardware_parameters["loop_rate"];
-        config_.device = info_.hardware_parameters["device"];
-        config_.baud_rate = info_.hardware_parameters["baud_rate"]
-        config_.timeout_ms = info_.hardware_parameters["timeout_ms"]
+        config_.left_wheel_name = stod(info_.hardware_parameters["left_wheel_name"]);
+        config_.right_wheel_name = stod(info_.hardware_parameters["right_wheel_name"]);
+        config_.loop_rate = stod(info_.hardware_parameters["loop_rate"]);
+        config_.device = stod(info_.hardware_parameters["device"]);
+        config_.baud_rate = stod(info_.hardware_parameters["baud_rate"]);
+        config_.timeout_ms = stod(info_.hardware_parameters["timeout_ms"]);
         if (info_.hardware_parameters.count("pid_p") > 0)
         {
-            cfg_.pid_p = std::stoi(info_.hardware_parameters["pid_p"]);
-            cfg_.pid_d = std::stoi(info_.hardware_parameters["pid_d"]);
-            cfg_.pid_i = std::stoi(info_.hardware_parameters["pid_i"]);
-            cfg_.pid_o = std::stoi(info_.hardware_parameters["pid_o"]);
+            config_.pid_p = std::stoi(info_.hardware_parameters["pid_p"]);
+            config_.pid_d = std::stoi(info_.hardware_parameters["pid_d"]);
+            config_.pid_i = std::stoi(info_.hardware_parameters["pid_i"]);
+            config_.pid_o = std::stoi(info_.hardware_parameters["pid_o"]);
         }
         else
         {
@@ -57,33 +57,6 @@ namespace terrence_hwc {
                 rclcpp::get_logger("DiffDriveArduino"),
                 "Joint '%s' have %s command interfaces found. '%s' expected.", joint.name.c_str(),
                 joint.command_interfaces[0].name.c_str(), hardware_interface::HW_IF_VELOCITY);
-                return hardware_interface::CallbackReturn::ERROR;
-            }
-
-            if (joint.state_interfaces.size() != 2)
-            {
-                RCLCPP_FATAL(
-                rclcpp::get_logger("DiffDriveArduino"),
-                "Joint '%s' has %zu state interface. 2 expected.", joint.name.c_str(),
-                joint.state_interfaces.size());
-                return hardware_interface::CallbackReturn::ERROR;
-            }
-
-            if (joint.state_interfaces[0].name != hardware_interface::HW_IF_POSITION)
-            {
-                RCLCPP_FATAL(
-                rclcpp::get_logger("DiffDriveArduino"),
-                "Joint '%s' have '%s' as first state interface. '%s' expected.", joint.name.c_str(),
-                joint.state_interfaces[0].name.c_str(), hardware_interface::HW_IF_POSITION);
-                return hardware_interface::CallbackReturn::ERROR;
-            }
-
-            if (joint.state_interfaces[1].name != hardware_interface::HW_IF_VELOCITY)
-            {
-                RCLCPP_FATAL(
-                rclcpp::get_logger("DiffDriveArduino"),
-                "Joint '%s' have '%s' as second state interface. '%s' expected.", joint.name.c_str(),
-                joint.state_interfaces[1].name.c_str(), hardware_interface::HW_IF_VELOCITY);
                 return hardware_interface::CallbackReturn::ERROR;
             }
         }

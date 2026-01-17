@@ -1,24 +1,21 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
     <xacro:unless value="$(arg sim_mode)">
-        <ros2_control name="RealRobot" type="system">
+        <ros2_control name="Terrence" type="system">
             <hardware>
-                <plugin>diffdrive_arduino/DiffDriveArduino</plugin>
+                <plugin>terrence_hwc/TerrenceHWC</plugin>
                 <param name="left_wheel_name">DS_Joint</param>
                 <param name="right_wheel_name">PS_Joint</param>
                 <param name="loop_rate">30</param>
                 <param name="device">/dev/ttyACM0</param>
                 <param name="baud_rate">57600</param>
                 <param name="timeout_ms">1000</param>
-                <param name="enc_counts_per_rev">2944</param>
             </hardware>
             <joint name="DS_Joint">
                 <command_interface name="velocity">
                 <param name="min">-10</param>
                 <param name="max">10</param>
                 </command_interface>
-                <state_interface name="position"/>
-                <state_interface name="velocity"/>
             </joint>
 
             <joint name="PS_Joint">
@@ -26,8 +23,6 @@
                 <param name="min">-10</param>
                 <param name="max">10</param>
                 </command_interface>
-                <state_interface name="position"/>
-                <state_interface name="velocity"/>
             </joint>
 
             <!-- <joint name="LoaderJoint">

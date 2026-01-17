@@ -1,4 +1,4 @@
-<library path="terrence_hwc_controller">
+<library path="terrence_hwc">
     <class
         name="terrence_hwc/TerrenceHWC"
         type="terrence_hwc::TerrenceHWC"

@@ -178,7 +178,9 @@ namespace terrence_hwc {
             return hardware_interface::return_type::ERROR;
         }
 
-        
+        comms_.set_motor_values(commands_.left_wheel_cmd, commands_.right_wheel_cmd)
+
+        return hardware_interface::return_type::OK;
     }
 
 } // namespace terrence_hwc

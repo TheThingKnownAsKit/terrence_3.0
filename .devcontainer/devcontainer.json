@@ -1,0 +1,7 @@
+{
+  "name": "Terrence 3.0",
+  "dockerComposeFile": ["../docker/Docker-Compose.yaml"],
+  "service": "terrence_3.0",
+  "workspaceFolder": "/workspaces/terrence_3.0",
+  "shutdownAction": "stopCompose"
+}

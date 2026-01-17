@@ -20,6 +20,18 @@ namespace terrence_hwc
 {
     class TerrenceHWC : public hardware_interface::SystemInterface
     {
+
+        struct Config
+        {
+            std::string left_wheel_name = "";
+            std::string right_wheel_name = "";
+            float loop_rate = 0.0;
+            std::string device = "";
+            int baud_rate = 0;
+            int timeout_ms = 0;
+        }
+
+
         public:
             RCLCPP_SHARED_PTR_DEFINITIONS(TerrenceHWC)
 
@@ -44,7 +56,7 @@ namespace terrence_hwc
                 const rclcpp::Time & time, const rclcpp::Duration & period) override;
         
         private:
-
+            Config config_;
     }
 }   // namespace terrence_hwc
 

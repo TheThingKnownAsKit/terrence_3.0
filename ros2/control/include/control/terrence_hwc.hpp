@@ -37,12 +37,6 @@ namespace terrence_hwc
             int pid_o = 0;
         };
 
-        struct Commands
-        {
-            double left_wheel_cmd = 0.0;
-            double right_wheel_cmd = 0.0;
-        };
-
         public:
             RCLCPP_SHARED_PTR_DEFINITIONS(TerrenceHWC)
 
@@ -72,7 +66,8 @@ namespace terrence_hwc
         private:
             ArduinoComms comms_;
             Config config_;
-            Commands commands_;
+            std::string left_vel_if_;
+            std::string right_vel_if_;
     };
 }   // namespace terrence_hwc
 

@@ -21,18 +21,20 @@ namespace terrence_hwc {
             return hardware_interface::CallbackReturn::ERROR;
         }
 
-        config_.left_wheel_name = stod(info_.hardware_parameters["left_wheel_name"]);
-        config_.right_wheel_name = stod(info_.hardware_parameters["right_wheel_name"]);
-        config_.loop_rate = stod(info_.hardware_parameters["loop_rate"]);
-        config_.device = stod(info_.hardware_parameters["device"]);
-        config_.baud_rate = stod(info_.hardware_parameters["baud_rate"]);
-        config_.timeout_ms = stod(info_.hardware_parameters["timeout_ms"]);
+        config_.left_wheel_name  = info_.hardware_parameters.at("left_wheel_name");
+        config_.right_wheel_name = info_.hardware_parameters.at("right_wheel_name");
+        config_.device           = info_.hardware_parameters.at("device");
+
+        config_.loop_rate  = hardware_interface::stod(info_.hardware_parameters.at("loop_rate"));
+        config_.baud_rate  = std::stoi(info_.hardware_parameters.at("baud_rate"));
+        config_.timeout_ms = std::stoi(info_.hardware_parameters.at("timeout_ms"));
+
         if (info_.hardware_parameters.count("pid_p") > 0)
         {
-            config_.pid_p = std::stoi(info_.hardware_parameters["pid_p"]);
-            config_.pid_d = std::stoi(info_.hardware_parameters["pid_d"]);
-            config_.pid_i = std::stoi(info_.hardware_parameters["pid_i"]);
-            config_.pid_o = std::stoi(info_.hardware_parameters["pid_o"]);
+            config_.pid_p = std::stoi(info_.hardware_parameters.at("pid_p"));
+            config_.pid_i = std::stoi(info_.hardware_parameters.at("pid_i"));
+            config_.pid_d = std::stoi(info_.hardware_parameters.at("pid_d"));
+            config_.pid_o = std::stoi(info_.hardware_parameters.at("pid_o"));
         }
         else
         {
@@ -61,24 +63,10 @@ namespace terrence_hwc {
             }
         }
 
+        left_vel_if_  = config_.left_wheel_name  + "/" + hardware_interface::HW_IF_VELOCITY;
+        right_vel_if_ = config_.right_wheel_name + "/" + hardware_interface::HW_IF_VELOCITY;
+
         return hardware_interface::CallbackReturn::SUCCESS;
-    }
-
-    // We should not have any state interfaces
-
-    std::vector<hardware_interface::CommandInterface> TerrenceHWC::export_command_interfaces()
-    {
-        std::vector<hardware_interface::CommandInterface> command_interfaces;
-
-        command_interfaces.emplace_back(hardware_interface::CommandInterface(
-            config_.left_wheel_name, hardware_interface::HW_IF_VELOCITY, &commands_.left_wheel_cmd
-        ));
-
-        command_interfaces.emplace_back(hardware_interfaces::CommandInterface(
-            config_.right_wheel_name. hardware_interface::HW_IF_VELOCITY, &commands_.right_wheel_cmd
-        ));
-
-        return command_interfaces;
     }
 
     hardware_interface::CallbackReturn TerrenceHWC::on_configure(
@@ -116,6 +104,10 @@ namespace terrence_hwc {
         {
             return hardware_interface::CallbackReturn::ERROR;
         }
+
+        (void)get_command<double>(left_vel_if_);
+        (void)get_command<double>(right_vel_if_);
+
         RCLCPP_INFO(rclcpp::get_logger("TerrenceHWC"), "Successfully activated!");
 
         return hardware_interface::CallbackReturn::SUCCESS;
@@ -151,7 +143,10 @@ namespace terrence_hwc {
             return hardware_interface::return_type::ERROR;
         }
 
-        comms_.set_motor_values(commands_.left_wheel_cmd, commands_.right_wheel_cmd);
+        const double left_cmd  = get_command<double>(left_vel_if_);
+        const double right_cmd = get_command<double>(right_vel_if_);
+
+        comms_.set_motor_values(left_cmd, right_cmd);
 
         return hardware_interface::return_type::OK;
     }

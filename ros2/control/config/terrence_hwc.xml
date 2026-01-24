@@ -1,8 +1,9 @@
 <library path="terrence_hwc">
-    <class
+    <class>
         name="terrence_hwc/TerrenceHWC"
         type="terrence_hwc::TerrenceHWC"
-        base_class_type="hardware_interface::SystemInterface">
+        base_class_type="hardware_interface::SystemInterface"
+    </class>
     <description>
         Hardware plugin for terrence
     </description>

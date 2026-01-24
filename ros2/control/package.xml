@@ -23,6 +23,6 @@
 
   <export>
     <build_type>ament_cmake</build_type>
-    <hardware_interface plugin="diffdrive_arduino.xml"/>
+    <hardware_interface plugin="config/terrence_hwc.xml"/>
   </export>
 </package>

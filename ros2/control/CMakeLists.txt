@@ -18,6 +18,10 @@ foreach(Dependency IN ITEMS ${THIS_PACKAGE_INCLUDE_DEPENDS})
   find_package(${Dependency} REQUIRED)
 endforeach()
 
+# LibSerial nonsense
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(LIBSERIAL REQUIRED libserial)
+
 add_library(
   terrence_hwc
   SHARED
@@ -30,6 +34,20 @@ target_compile_features(terrence_hwc PUBLIC cxx_std_17)
 target_include_directories(terrence_hwc PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
+)
+
+# LibSerial headers (PRIVATE: only your .cpp needs them)
+target_include_directories(terrence_hwc PRIVATE
+  ${LIBSERIAL_INCLUDE_DIRS}
+)
+
+# LibSerial link dirs + libs
+target_link_directories(terrence_hwc PRIVATE
+  ${LIBSERIAL_LIBRARY_DIRS}
+)
+
+target_link_libraries(terrence_hwc PRIVATE
+  ${LIBSERIAL_LIBRARIES}
 )
 
 ament_target_dependencies(

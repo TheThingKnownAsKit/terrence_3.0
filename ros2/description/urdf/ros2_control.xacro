@@ -89,7 +89,7 @@
 
     <gazebo>
         <plugin name="gz_ros2_control::GazeboSimROS2ControlPlugin" filename="libgz_ros2_control-system.so">
-            <parameters>$(find terrence_2)/config/my_controllers.yaml</parameters>
+            <parameters>$(find control)/config/controllers.yaml</parameters>
         </plugin>
     </gazebo>
 </robot>

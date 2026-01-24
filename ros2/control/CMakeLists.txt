@@ -55,7 +55,8 @@ install(TARGETS terrence_hwc
 
 # Install plugin XML so hardware_interface can find it
 install(
-  FILES config/terrence_hwc.xml
+  # FILES config/terrence_hwc.xml
+  DIRECTORY config
   DESTINATION share/${PROJECT_NAME}
 )
 

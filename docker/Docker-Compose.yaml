@@ -12,6 +12,9 @@ services:
       - DISPLAY=${DISPLAY}
       - QT_X11_NO_MITSHM=1        # (optional, avoids some shared memory issues)
       - XDG_RUNTIME_DIR=/tmp/runtime-ubuntu
+      - ROS_DOMAIN_ID=0
+      - DISPLAY=:0
+      - QT_QPA_PLATFORM=xcb
     volumes:
       - type: bind                 # udev database
         source: /run/udev
@@ -32,6 +35,7 @@ services:
         target: /dev/bus/usb
         bind:
           propagation: rshared
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
     cap_add:
       - SYS_NICE               # For real-time scheduling
     tty: true

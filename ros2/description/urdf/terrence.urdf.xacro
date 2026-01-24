@@ -29,7 +29,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="file://$(find terrence_2)/description/meshes/Base.STL" />
+        <mesh filename="file://$(find description)/meshes/Base.STL" />
       </geometry>
       <material name="">
         <color rgba="0.75294 0.75294 0.75294 1" />
@@ -38,7 +38,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="file://$(find terrence_2)/description/meshes/Base.STL" />
+        <mesh filename="file://$(find description)/meshes/Base.STL" />
       </geometry>
     </collision>
   </link>
@@ -62,7 +62,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="file://$(find terrence_2)/description/meshes/DriverWheel.STL" />
+        <mesh filename="file://$(find description)/meshes/DriverWheel.STL" />
       </geometry>
       <material name="">
         <color rgba="0.79216 0.81961 0.93333 1" />
@@ -71,7 +71,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="file://$(find terrence_2)/description/meshes/DriverWheel.STL" />
+        <mesh filename="file://$(find description)/meshes/DriverWheel.STL" />
       </geometry>
     </collision>
   </link>
@@ -99,7 +99,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="file://$(find terrence_2)/description/meshes/DriverSprocket.STL" />
+        <mesh filename="file://$(find description)/meshes/DriverSprocket.STL" />
       </geometry>
       <material name="">
         <color rgba="0.79216 0.81961 0.93333 1" />
@@ -108,7 +108,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="file://$(find terrence_2)/description/meshes/DriverSprocket.STL" />
+        <mesh filename="file://$(find description)/meshes/DriverSprocket.STL" />
       </geometry>
     </collision>
   </link>
@@ -134,7 +134,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="file://$(find terrence_2)/description/meshes/PassWheel.STL" />
+        <mesh filename="file://$(find description)/meshes/PassWheel.STL" />
       </geometry>
       <material name="">
         <color rgba="0.79216 0.81961 0.93333 1" />
@@ -143,7 +143,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="file://$(find terrence_2)/description/meshes/PassWheel.STL" />
+        <mesh filename="file://$(find description)/meshes/PassWheel.STL" />
       </geometry>
     </collision>
   </link>
@@ -171,7 +171,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="file://$(find terrence_2)/description/meshes/PassSprocket.STL" />
+        <mesh filename="file://$(find description)/meshes/PassSprocket.STL" />
       </geometry>
       <material name="">
         <color rgba="0.79216 0.81961 0.93333 1" />
@@ -180,7 +180,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="file://$(find terrence_2)/description/meshes/PassSprocket.STL" />
+        <mesh filename="file://$(find description)/meshes/PassSprocket.STL" />
       </geometry>
     </collision>
   </link>
@@ -206,7 +206,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="file://$(find terrence_2)/description/meshes/Loader.STL" />
+        <mesh filename="file://$(find description)/meshes/Loader.STL" />
       </geometry>
       <material name="">
         <color rgba="1 0 0 1" />
@@ -215,7 +215,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="file://$(find terrence_2)/description/meshes/Loader.STL" />
+        <mesh filename="file://$(find description)/meshes/Loader.STL" />
       </geometry>
     </collision>
   </link>
@@ -243,7 +243,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="file://$(find terrence_2)/description/meshes/Hopper.STL" />
+        <mesh filename="file://$(find description)/meshes/Hopper.STL" />
       </geometry>
       <material name="">
         <color rgba="0.79216 0.81961 0.93333 1" />
@@ -252,7 +252,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="file://$(find terrence_2)/description/meshes/Hopper.STL" />
+        <mesh filename="file://$(find description)/meshes/Hopper.STL" />
       </geometry>
     </collision>
   </link>
@@ -278,7 +278,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="file://$(find terrence_2)/description/meshes/Door.STL" />
+        <mesh filename="file://$(find description)/meshes/Door.STL" />
       </geometry>
       <material name="">
         <color rgba="0.79216 0.81961 0.93333 1" />
@@ -287,7 +287,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="file://$(find terrence_2)/description/meshes/Door.STL" />
+        <mesh filename="file://$(find description)/meshes/Door.STL" />
       </geometry>
     </collision>
   </link>

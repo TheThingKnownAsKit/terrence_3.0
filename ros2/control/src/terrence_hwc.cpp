@@ -65,6 +65,8 @@ namespace terrence_hwc {
 
         left_vel_if_  = config_.left_wheel_name  + "/" + hardware_interface::HW_IF_VELOCITY;
         right_vel_if_ = config_.right_wheel_name + "/" + hardware_interface::HW_IF_VELOCITY;
+        left_pos_if_  = config_.left_wheel_name  + "/" + hardware_interface::HW_IF_POSITION;
+        right_pos_if_ = config_.right_wheel_name + "/" + hardware_interface::HW_IF_POSITION;
 
         return hardware_interface::CallbackReturn::SUCCESS;
     }
@@ -105,8 +107,13 @@ namespace terrence_hwc {
             return hardware_interface::CallbackReturn::ERROR;
         }
 
-        (void)get_command<double>(left_vel_if_);
-        (void)get_command<double>(right_vel_if_);
+        left_pos_ = right_pos_ = 0.0;
+        left_vel_state_ = right_vel_state_ = 0.0;
+
+        set_state(left_pos_if_, left_pos_);
+        set_state(right_pos_if_, right_pos_);
+        set_state(left_vel_if_, left_vel_state_);
+        set_state(right_vel_if_, right_vel_state_);
 
         RCLCPP_INFO(rclcpp::get_logger("TerrenceHWC"), "Successfully activated!");
 
@@ -123,14 +130,34 @@ namespace terrence_hwc {
     }
 
     hardware_interface::return_type TerrenceHWC::read(
-        const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
+        const rclcpp::Time & /*time*/, const rclcpp::Duration & period)
     {
         if (!comms_.connected())
         {
             return hardware_interface::return_type::ERROR;
         }
 
-        // we read nothing from serial
+        // NOTE: Open loop odometry since no encoders
+
+        // Open-loop: assume measured wheel velocity equals commanded wheel velocity
+        const double left_cmd  = get_command<double>(left_vel_if_);
+        const double right_cmd = get_command<double>(right_vel_if_);
+
+        left_vel_state_  = left_cmd;
+        right_vel_state_ = right_cmd;
+
+        const double dt = period.seconds();
+        if (dt > 0.0 && std::isfinite(dt))
+        {
+            left_pos_  += left_vel_state_  * dt;
+            right_pos_ += right_vel_state_ * dt;
+        }
+
+        // Publish state into ros2_control-managed handles
+        set_state(left_vel_if_, left_vel_state_);
+        set_state(right_vel_if_, right_vel_state_);
+        set_state(left_pos_if_, left_pos_);
+        set_state(right_pos_if_, right_pos_);
 
         return hardware_interface::return_type::OK;
     }

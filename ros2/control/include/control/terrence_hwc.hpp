@@ -68,6 +68,12 @@ namespace terrence_hwc
             Config config_;
             std::string left_vel_if_;
             std::string right_vel_if_;
+            std::string left_pos_if_;
+            std::string right_pos_if_;
+            double left_pos_{0.0};
+            double right_pos_{0.0};
+            double left_vel_state_{0.0};
+            double right_vel_state_{0.0};
     };
 }   // namespace terrence_hwc
 

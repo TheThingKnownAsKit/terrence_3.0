@@ -1,5 +1,8 @@
 #include "control/terrence_controller.hpp"
 
+#include <algorithm>
+#include <optional>
+
 #include <pluginlib/class_list_macros.hpp>
 
 namespace terrence_controller
@@ -56,7 +59,7 @@ namespace terrence_controller
     controller_interface::InterfaceConfiguration TerrenceController::command_interface_configuration() const
     {
         controller_interface::InterfaceConfiguration config;
-        config.type = controller_inface::interface_configuration_type::INDIVIDUAL;
+        config.type = controller_interface::interface_configuration_type::INDIVIDUAL;
         config.names = {
             left_joint_name_ + "/velocity",
             right_joint_name_ + "/velocity"
@@ -102,7 +105,7 @@ namespace terrence_controller
             "/cmd_vel", rclcpp::SystemDefaultsQoS(),
             [this](const geometry_msgs::msg::Twist & msg) { cmdVelCb(msg); });
 
-        dig_cmd_sub_ = get_node()->create_subscription<geometry_msgs::msg::Twist>(
+        dig_cmd_sub_ = get_node()->create_subscription<std_msgs::msg::Float64MultiArray>(
             "/dig_cmd", rclcpp::SystemDefaultsQoS(),
             [this](const std_msgs::msg::Float64MultiArray & msg) { digCmdCb(msg); });
         
@@ -112,7 +115,7 @@ namespace terrence_controller
             [this](const std_msgs::msg::String & msg) { setModeCb(msg); });
 
         reset_fault_srv_ = get_node()->create_service<std_srvs::srv::Trigger>(
-            "/resest_fault",
+            "/reset_fault",
             [this](const std::shared_ptr<std_srvs::srv::Trigger::Request>,
                 std::shared_ptr<std_srvs::srv::Trigger::Response> resp)
             {
@@ -215,7 +218,7 @@ namespace terrence_controller
         rt_dig_cmd_.writeFromNonRT(d);
     }
 
-    void TerrenceController::setModeCb(const std_msgs::String & msg)
+    void TerrenceController::setModeCb(const std_msgs::msg::String & msg)
     {
         Mode m;
         if (!parseModeString(msg.data, m))
@@ -260,13 +263,21 @@ namespace terrence_controller
         // do the wheels have velocity?
         if (left_vel_state_idx_ >= 0 && right_vel_state_idx_ >= 0)
         {
-            lv = state_interfaces_[left_vel_state_idx_].get_value();
-            rv = state_interfaces_[right_vel_state_idx_].get_value();
+            const auto lv_opt = state_interfaces_[left_vel_state_idx_].get_optional();
+            const auto rv_opt = state_interfaces_[right_vel_state_idx_].get_optional();
+
+            // If optional is empty, treat as 0.0
+            lv = lv_opt.value_or(0.0);
+            rv = rv_opt.value_or(0.0);
         }
         else // can't use velocity state? use current command instead
         {
-            lv = command_interfaces_[left_cmd_idx_].get_value();
-            rv = command_interfaces_[right_cmd_idx_].get_value();
+            // Open-loop estimate
+            const auto lv_opt = command_interfaces_[left_cmd_idx_].get_optional();
+            const auto rv_opt = command_interfaces_[right_cmd_idx_].get_optional();
+
+            lv = lv_opt.value_or(0.0);
+            rv = rv_opt.value_or(0.0);
         }
 
         return (std::fabs(lv) > moving_eps_radps_) || (std::fabs(rv) > moving_eps_radps_);
@@ -279,7 +290,7 @@ namespace terrence_controller
             return false; // can only exit faults in reset_fault
         }
 
-        if (to == Mode::Fault)
+        if (to == Mode::FAULT)
         {
             return true; // technically allowed but just use latchFault() preferably
         }
@@ -328,11 +339,11 @@ namespace terrence_controller
     void TerrenceController::setWheelCommandsRadps(double left_radps, double right_radps)
     {
         // clamp to max
-        left_radps = clamp(left_radps, -max_wheel_radps_, max_wheel_radps_);
-        right_radps = clamp(right_radps, -max_wheel_radps_, max_wheel_radps_);
+        left_radps = std::clamp(left_radps, -max_wheel_radps_, max_wheel_radps_);
+        right_radps = std::clamp(right_radps, -max_wheel_radps_, max_wheel_radps_);
 
-        command_interfaces_[left_cmd_idx_].set_value(left_radps);
-        command_interfaces_[right_cmd_idx_].set_value(right_radps);
+        (void)command_interfaces_[left_cmd_idx_].set_value(left_radps);
+        (void)command_interfaces_[right_cmd_idx_].set_value(right_radps);
     }
 
     void TerrenceController::computeWheelRadps(double v_mps, double w_radps, double & out_left, double & out_right) const
@@ -350,7 +361,7 @@ namespace terrence_controller
     controller_interface::return_type TerrenceController::update(const rclcpp::Time & time, const rclcpp::Duration &)
     {
         // If fault latched, enforce safe outputs
-        if (faul_latched_ || mode_ == Mode::FAULT)
+        if (fault_latched_ || mode_ == Mode::FAULT)
         {
             setWheelCommandsRadps(0.0, 0.0);
             // TODO: attachment logic
@@ -402,7 +413,7 @@ namespace terrence_controller
                 }
 
                 double wl = 0.0, wr = 0.0;
-                computeWheelRadpsFromTwist(cmd.linear_x, cmd.angular_z, wl, wr);
+                computeWheelRadps(cmd.linear_x, cmd.angular_z, wl, wr);
                 setWheelCommandsRadps(wl, wr);
 
                 // Interlock: do NOT dig while driving
@@ -441,5 +452,5 @@ namespace terrence_controller
 
 } // namespace terrence_controller
 
-PLUGINLIB_EXPORT_CLASS(terrence_controller::TerrenceSupervisorController,
+PLUGINLIB_EXPORT_CLASS(terrence_controller::TerrenceController,
                        controller_interface::ControllerInterface)

@@ -11,6 +11,8 @@
 
 #include <string>
 #include <cmath>
+#include <array>
+#include <cstddef>
 #include <cstdint>
 
 namespace terrence_controller
@@ -98,7 +100,7 @@ namespace terrence_controller
 
             // State
             Mode mode_{Mode::IDLE};
-            bool faul_latched_{false};
+            bool fault_latched_{false};
 
             // Cached indices for update()
             int left_cmd_idx_{-1};
@@ -131,3 +133,5 @@ namespace terrence_controller
             // Maybe put debug/status publishing here later
     };
 } // namespace terrence_controller
+
+#endif // TERRENCE_CONTROLLER_HPP

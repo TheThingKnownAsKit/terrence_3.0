@@ -1,6 +1,6 @@
 import os
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, RegisterEventHandler
+from launch.actions import IncludeLaunchDescription, RegisterEventHandler, DeclareLaunchArgument
 from launch.event_handlers import OnProcessExit
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import Command, PathSubstitution, LaunchConfiguration
@@ -9,8 +9,15 @@ from launch_ros.substitutions import FindPackageShare
 
 def generate_launch_description():
     
-    # 1. Start Gazebo (Harmonic) environment
-    # We use 'gz_sim.launch.py' from ros_gz_sim instead of gazebo_ros
+    # Locate the config file
+    # Ensure 'bringup' matches your actual package name where the yaml is stored
+    bridge_params = os.path.join(
+        FindPackageShare("bringup").find("bringup"),
+        "config",
+        "gz_bridge.yaml"
+    )
+
+    # 1. Start environment
     gazebo = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             [PathSubstitution(FindPackageShare("ros_gz_sim")), "/launch/gz_sim.launch.py"]
@@ -25,6 +32,8 @@ def generate_launch_description():
             " ",
             PathSubstitution(FindPackageShare("description")),
             "/urdf/terrence.urdf.xacro",
+            " ",
+            "sim_mode:=true",
         ]
     )
     
@@ -35,34 +44,75 @@ def generate_launch_description():
         parameters=[{"robot_description": robot_description_content, "use_sim_time": True}],
     )
 
-    # 3. Bridge ROS <-> Gazebo
-    # Essential for synchronizing time (/clock) so controllers work
+    # 3. Bridge ROS & Gazebo
     bridge = Node(
         package='ros_gz_bridge',
         executable='parameter_bridge',
-        arguments=['/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock'],
+        parameters=[
+            {'config_file': bridge_params},
+            {'qos_overrides./tf_static.publisher.durability': 'transient_local'}
+        ],
         output='screen'
     )
 
     # 4. Spawn Robot
-    # 'create' is the new node for spawning in ros_gz_sim
     spawn_entity = Node(
         package="ros_gz_sim",
         executable="create",
         arguments=[
             "-topic", "robot_description",
             "-name", "terrence",
-            "-z", "0.5", # Drop it from 0.5m to prevent floor clipping
+            "-z", "0.5",
         ],
         output="screen",
     )
 
-    # 5. Controllers
-    # We delay this until the spawner exits to ensure the robot exists
-    joint_state_broadcaster = Node(
+    # 5. Joystick and Teleoperation
+    joy_node = Node(
+        package='joy',
+        executable='joy_node',
+        name='joy_node',
+        parameters=[{'use_sim_time': True}]
+    )
+
+    teleop_node = Node(
+        package='teleop_twist_joy',
+        executable='teleop_node',
+        name='teleop_twist_joy_node',
+        parameters=[
+            PathSubstitution(FindPackageShare("control"))
+            / "config"
+            / "joystick.yaml",
+            {'use_sim_time': True}
+        ]
+    )
+
+    # 6. Controllers
+    joint_state_broadcaster_spawner = Node(
         package="controller_manager",
         executable="spawner",
         arguments=["joint_state_broadcaster"],
+    )
+
+    terrence_controller_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=["terrence_controller"],
+    )
+
+    # Delay controller spawners until after the robot is spawned
+    delay_terrence_controller_spawner = RegisterEventHandler(
+        event_handler=OnProcessExit(
+            target_action=spawn_entity,
+            on_exit=[terrence_controller_spawner],
+        )
+    )
+
+    delay_joint_state_broadcaster_spawner = RegisterEventHandler(
+        event_handler=OnProcessExit(
+            target_action=spawn_entity,
+            on_exit=[joint_state_broadcaster_spawner],
+        )
     )
 
     return LaunchDescription([
@@ -70,5 +120,8 @@ def generate_launch_description():
         rsp,
         bridge,
         spawn_entity,
-        joint_state_broadcaster,
+        joy_node,
+        teleop_node,
+        delay_joint_state_broadcaster_spawner,
+        delay_terrence_controller_spawner,
     ])

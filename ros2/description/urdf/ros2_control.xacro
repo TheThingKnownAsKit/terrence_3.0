@@ -9,7 +9,7 @@
                 <param name="loop_rate">30</param>
                 <param name="device">/dev/ttyACM0</param>
                 <param name="baud_rate">57600</param>
-                <param name="timeout_ms">1000</param>
+                <param name="timeout_ms">20</param>
             </hardware>
             <joint name="DS_Joint">
                 <command_interface name="velocity">
@@ -29,18 +29,16 @@
                 <state_interface name="velocity"/>
             </joint>
 
-            <!-- <joint name="LoaderJoint">
-                <command_interface name="position">
-                <param name="min">-1.57</param>
-                <param name="max">1.57</param>
-                </command_interface>
+            <joint name="LoaderJoint">
+                <command_interface name="position"/>
                 <state_interface name="position"/>
                 <state_interface name="velocity"/>
             </joint>
 
-            <joint name="DoorJoint">
+            <joint name="HopperJoint">
+                <command_interface name="position"/>
                 <state_interface name="position"/>
-            </joint> -->
+            </joint>
         </ros2_control>
     </xacro:unless>
 
@@ -79,10 +77,12 @@
 
             <joint name="LoaderJoint">
                 <state_interface name="position"/>
+                <command_interface name="position"/>
             </joint>
 
             <joint name="HopperJoint">
                 <state_interface name="position"/>
+                <command_interface name="position"/>
             </joint>
 
             <joint name="DoorJoint">

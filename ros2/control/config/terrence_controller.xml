@@ -1,0 +1,10 @@
+<library path="terrence_controller">
+  <class
+    name="terrence_controller/TerrenceController"
+    type="terrence_controller::TerrenceController"
+    base_class_type="controller_interface::ControllerInterface">
+    <description>
+      Terrence supervisor controller with mode gating (IDLE/DRIVE/DIG/DUMP/FAULT).
+    </description>
+  </class>
+</library>

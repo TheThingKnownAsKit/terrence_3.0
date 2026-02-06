@@ -10,6 +10,14 @@ set(THIS_PACKAGE_INCLUDE_DEPENDS
   pluginlib
   rclcpp
   rclcpp_lifecycle
+  controller_interface
+  realtime_tools
+  geometry_msgs
+  std_msgs
+  std_srvs
+  nav_msgs
+  tf2
+  tf2_ros
 )
 
 # find dependencies
@@ -57,6 +65,39 @@ ament_target_dependencies(
 
 pluginlib_export_plugin_description_file(hardware_interface config/terrence_hwc.xml)
 
+# -----------------------------
+# Controller plugin (Jazzy)
+# -----------------------------
+add_library(
+  terrence_controller
+  SHARED
+  src/terrence_controller.cpp
+)
+
+target_compile_features(terrence_controller PUBLIC cxx_std_17)
+
+target_include_directories(terrence_controller PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+)
+
+ament_target_dependencies(
+  terrence_controller PUBLIC
+  rclcpp
+  rclcpp_lifecycle
+  controller_interface
+  pluginlib
+  realtime_tools
+  geometry_msgs
+  std_msgs
+  std_srvs
+  nav_msgs
+  tf2
+  tf2_ros
+)
+
+pluginlib_export_plugin_description_file(controller_interface config/terrence_controller.xml)
+
 # Install headers
 install(
   DIRECTORY include/
@@ -71,6 +112,14 @@ install(TARGETS terrence_hwc
   RUNTIME DESTINATION bin
 )
 
+# Install controller shared library
+install(TARGETS terrence_controller
+  EXPORT export_terrence_controller
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+)
+
 # Install plugin XML so hardware_interface can find it
 install(
   # FILES config/terrence_hwc.xml
@@ -79,5 +128,6 @@ install(
 )
 
 ament_export_targets(export_terrence_hwc HAS_LIBRARY_TARGET)
+ament_export_targets(export_terrence_controller HAS_LIBRARY_TARGET)
 ament_export_dependencies(${THIS_PACKAGE_INCLUDE_DEPENDS})
 ament_package()

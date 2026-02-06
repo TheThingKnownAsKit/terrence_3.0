@@ -81,6 +81,7 @@
     <child link="DriverWheel" />
     <axis xyz="1 0 0" />
     <limit effort="10" velocity="0" />
+    <mimic joint="DS_Joint" multiplier="1.0" offset="0.0"/>
   </joint>
 
   <gazebo reference="DriverWheel">
@@ -153,6 +154,7 @@
     <child link="PassWheel" />
     <axis xyz="1 0 0" />
     <limit effort="10" velocity="0" />
+    <mimic joint="PS_Joint" multiplier="1.0" offset="0.0"/>
   </joint>
 
   <gazebo reference="PassWheel">

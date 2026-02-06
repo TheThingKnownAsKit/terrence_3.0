@@ -14,6 +14,23 @@ def generate_launch_description():
                 default_value="true",
                 description="Start RViz2 automatically with this launch file.",
             ),
+            # Joy node (gets input)
+            Node(
+                package='joy',
+                executable='joy_node',
+                name='joy_node'
+            ),
+            # Teleop twist controller
+            Node(
+                package='teleop_twist_joy',
+                executable='teleop_node',
+                name='teleop_twist_joy_node',
+                parameters=[
+                    PathSubstitution(FindPackageShare("control"))
+                    / "config"
+                    / "joystick.yaml"
+                ]
+            ),
             # Control node
             Node(
                 package="controller_manager",
@@ -62,7 +79,12 @@ def generate_launch_description():
             Node(
                 package="controller_manager",
                 executable="spawner",
-                arguments=["joint_state_broadcaster"],
+                arguments=["joint_state_broadcaster", "--activate"],
+            ),
+            Node(
+                package="controller_manager",
+                executable="spawner",
+                arguments=["terrence_controller", "--activate"],
             ),
         ]
     )

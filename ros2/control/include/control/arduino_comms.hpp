@@ -54,34 +54,35 @@ public:
   }
 
 
-  std::string send_msg(const std::string &msg_to_send, bool print_output = false)
+  std::string send_msg(const std::string &msg_to_send/*, bool print_output = false*/)
   {
     serial_conn_.FlushIOBuffers(); // Just in case
     serial_conn_.Write(msg_to_send);
 
-    std::string response = "";
-    try
-    {
-      // Responses end with \r\n so we will read up to (and including) the \n.
-      serial_conn_.ReadLine(response, '\n', timeout_ms_);
-    }
-    catch (const LibSerial::ReadTimeout&)
-    {
-        std::cerr << "The ReadByte() call has timed out." << std::endl ;
-    }
+    // Reading from serial was blocking input, making this function write only
+    // std::string response = "";
+    // try
+    // {
+    //   // Responses end with \r\n so we will read up to (and including) the \n.
+    //   serial_conn_.ReadLine(response, '\n', timeout_ms_);
+    // }
+    // catch (const LibSerial::ReadTimeout&)
+    // {
+    //     std::cerr << "The ReadByte() call has timed out." << std::endl ;
+    // }
 
-    if (print_output)
-    {
-      std::cout << "Sent: " << msg_to_send << " Recv: " << response << std::endl;
-    }
+    // if (print_output)
+    // {
+    //   std::cout << "Sent: " << msg_to_send << " Recv: " << response << std::endl;
+    // }
 
-    return response;
+    return msg_to_send;
   }
 
 
   void send_empty_msg()
   {
-    std::string response = send_msg("\r");
+    std::string response = send_msg("\n");
   }
 
   void read_encoder_values(int &val_1, int &val_2)
@@ -97,18 +98,18 @@ public:
     val_2 = std::atoi(token_2.c_str());
   }
 
-  // This is in PWM (left then right)
+  // This is in rad/s (left then right)
   void set_motor_values(int val_1, int val_2)
   {
     std::stringstream ss;
-    ss << "m " << val_1 << " " << val_2 << "\r";
+    ss << "m " << val_1 << " " << val_2 << "\n";
     send_msg(ss.str());
   }
 
   void set_pid_values(int k_p, int k_d, int k_i, int k_o)
   {
     std::stringstream ss;
-    ss << "u " << k_p << ":" << k_d << ":" << k_i << ":" << k_o << "\r";
+    ss << "u " << k_p << ":" << k_d << ":" << k_i << ":" << k_o << "\n";
     send_msg(ss.str());
   }
 

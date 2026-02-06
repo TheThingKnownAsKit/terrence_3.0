@@ -41,30 +41,39 @@ namespace terrence_hwc {
             RCLCPP_INFO(rclcpp::get_logger("TerrenceHWC"), "PID values not supplied, using defaults.");
         }
 
-        for (const hardware_interface::ComponentInfo & joint : info_.joints)
-        {
-            // DiffBotSystem has exactly two states and one command interface on each joint
-            if (joint.command_interfaces.size() != 1)
-            {
-                RCLCPP_FATAL(
-                rclcpp::get_logger("DiffDriveArduino"),
-                "Joint '%s' has %zu command interfaces found. 1 expected.", joint.name.c_str(),
-                joint.command_interfaces.size());
-                return hardware_interface::CallbackReturn::ERROR;
-            }
+        // Debugging? I dont know her :)
+        // for (const hardware_interface::ComponentInfo & joint : info_.joints)
+        // {
+        //     // DiffBotSystem has exactly two states and one command interface on each joint
+        //     if (joint.command_interfaces.size() != 1)
+        //     {
+        //         RCLCPP_FATAL(
+        //         rclcpp::get_logger("DiffDriveArduino"),
+        //         "Joint '%s' has %zu command interfaces found. 1 expected.", joint.name.c_str(),
+        //         joint.command_interfaces.size());
+        //         return hardware_interface::CallbackReturn::ERROR;
+        //     }
 
-            if (joint.command_interfaces[0].name != hardware_interface::HW_IF_VELOCITY)
-            {
-                RCLCPP_FATAL(
-                rclcpp::get_logger("DiffDriveArduino"),
-                "Joint '%s' have %s command interfaces found. '%s' expected.", joint.name.c_str(),
-                joint.command_interfaces[0].name.c_str(), hardware_interface::HW_IF_VELOCITY);
-                return hardware_interface::CallbackReturn::ERROR;
-            }
-        }
+        //     if (joint.command_interfaces[0].name != hardware_interface::HW_IF_VELOCITY)
+        //     {
+        //         RCLCPP_FATAL(
+        //         rclcpp::get_logger("DiffDriveArduino"),
+        //         "Joint '%s' have %s command interfaces found. '%s' expected.", joint.name.c_str(),
+        //         joint.command_interfaces[0].name.c_str(), hardware_interface::HW_IF_VELOCITY);
+        //         return hardware_interface::CallbackReturn::ERROR;
+        //     }
+        // }
 
         left_vel_if_  = config_.left_wheel_name  + "/" + hardware_interface::HW_IF_VELOCITY;
         right_vel_if_ = config_.right_wheel_name + "/" + hardware_interface::HW_IF_VELOCITY;
+        left_pos_if_  = config_.left_wheel_name  + "/" + hardware_interface::HW_IF_POSITION;
+        right_pos_if_ = config_.right_wheel_name + "/" + hardware_interface::HW_IF_POSITION;
+
+        loader_cmd_if_ = config_.loader_name + "/" + hardware_interface::HW_IF_POSITION;
+        loader_pos_if_ = config_.loader_name + "/" + hardware_interface::HW_IF_POSITION;
+
+        hopper_cmd_if_ = config_.hopper_name + "/" + hardware_interface::HW_IF_POSITION;
+        hopper_pos_if_ = config_.hopper_name + "/" + hardware_interface::HW_IF_POSITION;
 
         return hardware_interface::CallbackReturn::SUCCESS;
     }
@@ -105,8 +114,19 @@ namespace terrence_hwc {
             return hardware_interface::CallbackReturn::ERROR;
         }
 
-        (void)get_command<double>(left_vel_if_);
-        (void)get_command<double>(right_vel_if_);
+        left_pos_ = 0.0;
+        right_pos_ = 0.0;
+        left_vel_state_ = 0.0;
+        right_vel_state_ = 0.0;
+        loader_pos_ = 0.0;
+        hopper_pos_ = 0.0;
+
+        set_state(left_pos_if_, left_pos_);
+        set_state(right_pos_if_, right_pos_);
+        set_state(left_vel_if_, left_vel_state_);
+        set_state(right_vel_if_, right_vel_state_);
+        set_state(loader_pos_if_, loader_pos_);
+        set_state(hopper_pos_if_, hopper_pos_);
 
         RCLCPP_INFO(rclcpp::get_logger("TerrenceHWC"), "Successfully activated!");
 
@@ -123,14 +143,39 @@ namespace terrence_hwc {
     }
 
     hardware_interface::return_type TerrenceHWC::read(
-        const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
+        const rclcpp::Time & /*time*/, const rclcpp::Duration & period)
     {
         if (!comms_.connected())
         {
             return hardware_interface::return_type::ERROR;
         }
 
-        // we read nothing from serial
+        // NOTE: Open loop odometry since no encoders
+
+        // safeguard against NaN
+        const double dt = period.seconds();
+        const double dt_safe = (std::isfinite(dt) && dt > 0.0 && dt < 0.5) ? dt : 0.0;
+
+        // Open-loop: assume measured wheel velocity equals commanded wheel velocity
+        const double left_cmd  = get_command<double>(left_vel_if_);
+        const double right_cmd = get_command<double>(right_vel_if_);
+
+        left_vel_state_  = left_cmd;
+        right_vel_state_ = right_cmd;
+
+        left_pos_  = finite_or_zero(left_pos_  + left_vel_state_  * dt_safe);
+        right_pos_ = finite_or_zero(right_pos_ + right_vel_state_ * dt_safe);
+
+        loader_pos_ = get_command<double>(loader_cmd_if_);
+        hopper_pos_ = get_command<double>(hopper_cmd_if_);
+
+        // Publish state into ros2_control-managed handles
+        set_state(left_vel_if_, left_vel_state_);
+        set_state(right_vel_if_, right_vel_state_);
+        set_state(left_pos_if_, left_pos_);
+        set_state(right_pos_if_, right_pos_);
+        set_state(loader_pos_if_, loader_pos_);
+        set_state(hopper_pos_if_, hopper_pos_);
 
         return hardware_interface::return_type::OK;
     }
@@ -143,10 +188,15 @@ namespace terrence_hwc {
             return hardware_interface::return_type::ERROR;
         }
 
-        const double left_cmd  = get_command<double>(left_vel_if_);
-        const double right_cmd = get_command<double>(right_vel_if_);
+        // get the rad/s velocity commands from ros2 control
+        double left_cmd  = finite_or_zero(get_command<double>(left_vel_if_));
+        double right_cmd = finite_or_zero(get_command<double>(right_vel_if_));
 
-        comms_.set_motor_values(left_cmd, right_cmd);
+        // TODO: Update arduinocomms to accept loader/hopper values
+        // double loader_cmd = finite_or_zero(get_command<double>(loader_cmd_if_));
+        // double hopper_cmd = finite_or_zero(get_command<double>(hopper_cmd_if_));
+
+        comms_.set_motor_values(left_cmd, right_cmd); // loader cmd and hopper cmd would get added
 
         return hardware_interface::return_type::OK;
     }

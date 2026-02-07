@@ -4,6 +4,12 @@
   <xacro:arg name="sim_mode" default="false"/>
   <xacro:include filename="ros2_control.xacro"/>
 
+  <!-- COLORS -->
+  <xacro:include filename="colors.xacro"/>
+
+  <!-- LIDAR TESTING -->
+  <xacro:include filename="lidar.xacro"/>
+
   <link name="base_link" />
   <link name="base_footprint" />
   <joint name="base_joint" type="fixed">
@@ -24,7 +30,7 @@
       <geometry>
         <mesh filename="file://$(find description)/meshes/Base.STL" />
       </geometry>
-      <material name="">
+      <material name="teal">
         <color rgba="0.75294 0.75294 0.75294 1" />
       </material>
     </visual>
@@ -57,7 +63,7 @@
       <geometry>
         <mesh filename="file://$(find description)/meshes/DriverWheel.STL" />
       </geometry>
-      <material name="">
+      <material name="green">
         <color rgba="0.79216 0.81961 0.93333 1" />
       </material>
     </visual>
@@ -95,7 +101,7 @@
       <geometry>
         <mesh filename="file://$(find description)/meshes/DriverSprocket.STL" />
       </geometry>
-      <material name="">
+      <material name="blue">
         <color rgba="0.79216 0.81961 0.93333 1" />
       </material>
     </visual>
@@ -130,7 +136,7 @@
       <geometry>
         <mesh filename="file://$(find description)/meshes/PassWheel.STL" />
       </geometry>
-      <material name="">
+      <material name="purple">
         <color rgba="0.79216 0.81961 0.93333 1" />
       </material>
     </visual>
@@ -168,7 +174,7 @@
       <geometry>
         <mesh filename="file://$(find description)/meshes/PassSprocket.STL" />
       </geometry>
-      <material name="">
+      <material name="gray">
         <color rgba="0.79216 0.81961 0.93333 1" />
       </material>
     </visual>
@@ -203,7 +209,7 @@
       <geometry>
         <mesh filename="file://$(find description)/meshes/Loader.STL" />
       </geometry>
-      <material name="">
+      <material name="yellow">
         <color rgba="1 0 0 1" />
       </material>
     </visual>
@@ -240,7 +246,7 @@
       <geometry>
         <mesh filename="file://$(find description)/meshes/Hopper.STL" />
       </geometry>
-      <material name="">
+      <material name="pink">
         <color rgba="0.79216 0.81961 0.93333 1" />
       </material>
     </visual>
@@ -275,7 +281,7 @@
       <geometry>
         <mesh filename="file://$(find description)/meshes/Door.STL" />
       </geometry>
-      <material name="">
+      <material name="silver">
         <color rgba="0.79216 0.81961 0.93333 1" />
       </material>
     </visual>

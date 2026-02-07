@@ -15,6 +15,7 @@ RoboClaw drivetrain_roboclaw(&Serial3, 10000);
 
 void setup() {
     Serial.begin(57600);
+    pinMode(LED_BUILTIN, OUTPUT);
     Serial.setTimeout(20); // ms
     execavation_roboclaw.begin(115200);
     drivetrain_roboclaw.begin(115200);
@@ -36,6 +37,15 @@ void loop() {
             int left_velocity, right_velocity;
             sscanf(c_str_command, "%d %d", &left_velocity, &right_velocity);
             Serial.printf("Recieved left %d right %d\n", left_velocity, right_velocity);
+
+            if (left_velocity + right_velocity != 0) {
+                digitalWrite(LED_BUILTIN, HIGH);
+            }
+            else
+            {
+                digitalWrite(LED_BUILTIN, LOW);
+            }
+
             drivetrain_roboclaw.ForwardBackwardM1(DRIVETRAIN_ROBOCLAW_ADDRESS, left_velocity);
             drivetrain_roboclaw.ForwardBackwardM2(DRIVETRAIN_ROBOCLAW_ADDRESS, right_velocity);
             break;

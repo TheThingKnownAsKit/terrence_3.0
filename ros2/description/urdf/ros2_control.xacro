@@ -10,6 +10,7 @@
                 <param name="device">/dev/ttyACM0</param>
                 <param name="baud_rate">57600</param>
                 <param name="timeout_ms">20</param>
+                <!-- <param name="max_radps">10.0</param> -->
             </hardware>
             <joint name="DS_Joint">
                 <command_interface name="velocity">

@@ -29,6 +29,13 @@ namespace terrence_hwc {
         config_.baud_rate  = std::stoi(info_.hardware_parameters.at("baud_rate"));
         config_.timeout_ms = std::stoi(info_.hardware_parameters.at("timeout_ms"));
 
+        if (info_.hardware_parameters.count("max_radps") > 0) {
+            config_.max_radps = std::stod(info_.hardware_parameters.at("max_radps"));
+        } else {
+            config_.max_radps = 10.0;
+            RCLCPP_WARN(rclcpp::get_logger("TerrenceHWC"), "max_radps not specified in URDF, defaulting to 10.0");
+        }
+
         if (info_.hardware_parameters.count("pid_p") > 0)
         {
             config_.pid_p = std::stoi(info_.hardware_parameters.at("pid_p"));
@@ -166,8 +173,15 @@ namespace terrence_hwc {
         left_pos_  = finite_or_zero(left_pos_  + left_vel_state_  * dt_safe);
         right_pos_ = finite_or_zero(right_pos_ + right_vel_state_ * dt_safe);
 
-        loader_pos_ = get_command<double>(loader_cmd_if_);
-        hopper_pos_ = get_command<double>(hopper_cmd_if_);
+        double l_cmd = get_command<double>(loader_cmd_if_);
+        if (std::isfinite(l_cmd)) {
+            loader_pos_ = l_cmd;
+        }
+
+        double h_cmd = get_command<double>(hopper_cmd_if_);
+        if (std::isfinite(h_cmd)) {
+            hopper_pos_ = h_cmd;
+        }
 
         // Publish state into ros2_control-managed handles
         set_state(left_vel_if_, left_vel_state_);
@@ -188,15 +202,32 @@ namespace terrence_hwc {
             return hardware_interface::return_type::ERROR;
         }
 
-        // get the rad/s velocity commands from ros2 control
-        double left_cmd  = finite_or_zero(get_command<double>(left_vel_if_));
-        double right_cmd = finite_or_zero(get_command<double>(right_vel_if_));
+        double left_radps  = finite_or_zero(get_command<double>(left_vel_if_));
+        double right_radps = finite_or_zero(get_command<double>(right_vel_if_));
+
+        // Map Rad/s to RoboClaw 0-127 Scale
+        // 0 = Full Rev, 64 = Stop, 127 = Full Fwd
+        
+        double max = config_.max_radps;
+        
+        // Calculate factor [-1.0 to 1.0]
+        double left_factor = std::clamp(left_radps / max, -1.0, 1.0);
+        double right_factor = std::clamp(right_radps / max, -1.0, 1.0);
+
+        // Convert to 0-127 (where 64 is middle)
+        // 64 + (factor * 63)
+        int left_pwm = 64 + static_cast<int>(left_factor * 63.0);
+        int right_pwm = 64 + static_cast<int>(right_factor * 63.0);
+
+        // Safety Clamp
+        left_pwm = std::clamp(left_pwm, 1, 127);
+        right_pwm = std::clamp(right_pwm, 1, 127);
+
+        comms_.set_motor_values(left_pwm, right_pwm);
 
         // TODO: Update arduinocomms to accept loader/hopper values
         // double loader_cmd = finite_or_zero(get_command<double>(loader_cmd_if_));
         // double hopper_cmd = finite_or_zero(get_command<double>(hopper_cmd_if_));
-
-        comms_.set_motor_values(left_cmd, right_cmd); // loader cmd and hopper cmd would get added
 
         return hardware_interface::return_type::OK;
     }

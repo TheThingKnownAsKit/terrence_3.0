@@ -7,8 +7,11 @@
   <!-- COLORS -->
   <xacro:include filename="colors.xacro"/>
 
-  <!-- LIDAR TESTING -->
+  <!-- LIDAR -->
   <xacro:include filename="lidar.xacro"/>
+
+  <!-- CAMERA -->
+  <xacro:include filename="camera.xacro"/>
 
   <link name="base_link" />
   <link name="base_footprint" />
@@ -68,10 +71,9 @@
       </material>
     </visual>
     <collision>
-      <origin xyz="-0.030264 6.665E-05 1.2263E-10" rpy="0 0 0" />
+      <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <!-- <mesh filename="file://$(find description)/meshes/DriverWheel.STL" /> -->
-        <sphere radius="0.0397"/>
+        <mesh filename="file://$(find description)/meshes/DriverWheel.STL" />
       </geometry>
     </collision>
   </link>
@@ -86,12 +88,8 @@
 
   <gazebo reference="DriverWheel">
     <material>Gazebo/Blue</material>
-      <!-- <mu1 value="0.001"/>
-      <mu2 value="0.001"/> -->
-      <mu1 value="0.001"/> 
+      <mu1 value="0.001"/>
       <mu2 value="0.001"/>
-      <!-- <kp value="10000000.0" />
-      <kd value="1.0" /> -->
   </gazebo>
 
   <link name="DriverSprocket">
@@ -111,10 +109,9 @@
       </material>
     </visual>
     <collision>
-      <origin xyz="0.0097746 -3.5292E-09 -5.2457E-08" rpy="0 0 0" />
+      <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <!-- <mesh filename="file://$(find description)/meshes/DriverSprocket.STL" /> -->
-        <sphere radius="0.0397"/>
+        <mesh filename="file://$(find description)/meshes/DriverSprocket.STL" />
       </geometry>
     </collision>
   </link>
@@ -128,8 +125,6 @@
 
   <gazebo reference="DriverSprocket">
     <material>Gazebo/Blue</material>
-      <mu1 value="1.0"/>
-      <mu2 value="1.0"/>
   </gazebo>
 
   <link name="PassWheel">
@@ -149,10 +144,9 @@
       </material>
     </visual>
     <collision>
-      <origin xyz="0.020612 8.4006E-05 -0.00023239" rpy="0 0 0" />
+      <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <!-- <mesh filename="file://$(find description)/meshes/PassWheel.STL" /> -->
-        <sphere radius="0.0397"/>
+        <mesh filename="file://$(find description)/meshes/PassWheel.STL" />
       </geometry>
     </collision>
   </link>
@@ -188,10 +182,9 @@
       </material>
     </visual>
     <collision>
-      <origin xyz="-0.0056813 -3.6211E-09 -5.2434E-08" rpy="0 0 0" />
+      <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <!-- <mesh filename="file://$(find description)/meshes/PassSprocket.STL" /> -->
-        <sphere radius="0.0397"/>
+        <mesh filename="file://$(find description)/meshes/PassSprocket.STL" />
       </geometry>
     </collision>
   </link>
@@ -205,8 +198,6 @@
 
   <gazebo reference="PassSprocket">
     <material>Gazebo/Blue</material>
-      <mu1 value="1.0"/>
-      <mu2 value="1.0"/>
   </gazebo>
 
   <link name="Loader">

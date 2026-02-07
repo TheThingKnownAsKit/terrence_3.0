@@ -221,7 +221,7 @@ namespace terrence_controller
         setWheelCommandsRadps(0.0, 0.0);
         loader_cmd_val_ = 0.0;
         hopper_cmd_val_ = 0.0;
-        enterMode(Mode::IDLE);
+        enterMode(Mode::DRIVE);
 
         RCLCPP_INFO(get_node()->get_logger(), "Activated TerrenceController.");
         return controller_interface::CallbackReturn::SUCCESS;

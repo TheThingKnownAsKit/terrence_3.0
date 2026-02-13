@@ -11,7 +11,7 @@
 // #define HOPPER_SERVO_PIN (29)
 
 // RoboClaw execavation_roboclaw(&Serial2, 10000);
-RoboClaw drivetrain_roboclaw(&Serial1, 10000);
+RoboClaw drivetrain_roboclaw(&Serial2, 10000);
 
 void setup() {
     Serial.begin(9600);
@@ -36,7 +36,12 @@ void loop() {
         case 'm':
             int left_velocity, right_velocity;
             sscanf(c_str_command, "%d %d", &left_velocity, &right_velocity);
-            Serial.printf("Recieved left %d right %d\n", left_velocity, right_velocity);
+            // Serial.printf("Recieved left %d right %d\n", left_velocity, right_velocity);
+
+            // temp hardcode
+            left_velocity = 80;
+            right_velocity = 80;
+
 
             if (left_velocity + right_velocity != 128) {
                 digitalWrite(LED_BUILTIN, HIGH);

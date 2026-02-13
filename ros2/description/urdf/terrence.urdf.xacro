@@ -24,8 +24,8 @@
   <!-- Base Link and Joint -->
   <link name="Base">
     <inertial>
-      <origin xyz="0.0071933 0.035942 -0.37341" rpy="0 0 0" />
-      <mass value="2.0994" />
+     <origin xyz="0.0071933 0.035942 -0.17341" rpy="0 0 0" />
+      <mass value="1.0994" />
       <inertia ixx="0.0052099" ixy="-7.8944E-22" ixz="-4.9264E-20" iyy="0.0060071" iyz="3.293E-21"
         izz="0.0014684" />
     </inertial>

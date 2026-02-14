@@ -43,6 +43,7 @@
         </ros2_control>
     </xacro:unless>
 
+    <!-- Allows Terrence to be controlled in Gazebo Sim -->
     <xacro:if value="$(arg sim_mode)">
         <ros2_control name="GazeboSystem" type="system">
             <hardware>
@@ -64,16 +65,6 @@
                 </command_interface>
                 <state_interface name="velocity"/>
                 <state_interface name="position"/>
-            </joint>
-            
-            <joint name="DW_Joint">
-                <state_interface name="position"/>
-                <state_interface name="velocity"/>
-            </joint>
-
-            <joint name="PW_Joint">
-                <state_interface name="position"/>
-                <state_interface name="velocity"/>
             </joint>
 
             <joint name="LoaderJoint">

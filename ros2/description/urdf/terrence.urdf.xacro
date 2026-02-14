@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="LilT_Combined_URDF">
 
-  <xacro:arg name="use_ros2_control" default="true"/>
   <xacro:arg name="sim_mode" default="false"/>
+  <xacro:include filename="ros2_control.xacro"/>
 
-  <xacro:if value="$(arg use_ros2_control)">
-      <xacro:include filename="ros2_control.xacro"/>
-  </xacro:if>
-  <xacro:unless value="$(arg use_ros2_control)">
-      <xacro:include filename="gazebo_control.xacro"/>
-  </xacro:unless>
+  <!-- COLORS -->
+  <xacro:include filename="colors.xacro"/>
+
+  <!-- LIDAR -->
+  <xacro:include filename="lidar.xacro"/>
+
+  <!-- CAMERA -->
+  <xacro:include filename="camera.xacro"/>
 
   <link name="base_link" />
   <link name="base_footprint" />
@@ -19,10 +21,11 @@
     <origin xyz="0 0 0" rpy="0 0 0" />
   </joint>
 
+  <!-- Base Link and Joint -->
   <link name="Base">
     <inertial>
-      <origin xyz="0.0071933 0.035942 -0.37341" rpy="0 0 0" />
-      <mass value="2.0994" />
+     <origin xyz="0.0071933 0.035942 -0.17341" rpy="0 0 0" />
+      <mass value="1.0994" />
       <inertia ixx="0.0052099" ixy="-7.8944E-22" ixz="-4.9264E-20" iyy="0.0060071" iyz="3.293E-21"
         izz="0.0014684" />
     </inertial>
@@ -31,7 +34,7 @@
       <geometry>
         <mesh filename="file://$(find description)/meshes/Base.STL" />
       </geometry>
-      <material name="">
+      <material name="teal">
         <color rgba="0.75294 0.75294 0.75294 1" />
       </material>
     </visual>
@@ -43,7 +46,7 @@
     </collision>
   </link>
   <joint name="Baseplate_joint" type="fixed">
-    <origin xyz="0 0 0" rpy="${pi/2} 0 0" />
+    <origin xyz="0.136145 0 0" rpy="${pi/2} 0 ${pi/2}" />
     <parent link="base_link" />
     <child link="Base" />
   </joint>
@@ -52,10 +55,11 @@
     <material>Gazebo/White</material>
   </gazebo>
 
+  <!-- Frictionless model of actual driver wheel (does drive the bot in the sim) s-->
   <link name="DriverWheel">
     <inertial>
       <origin xyz="-0.030264 6.665E-05 1.2263E-10" rpy="0 0 0" />
-      <mass value="0.046607" />
+      <mass value="0.5" />
       <inertia ixx="3.7938E-05" ixy="-6.4305E-20" ixz="-1.3428E-19" iyy="1.9406E-05"
         iyz="2.6768E-13" izz="1.9256E-05" />
     </inertial>
@@ -64,57 +68,101 @@
       <geometry>
         <mesh filename="file://$(find description)/meshes/DriverWheel.STL" />
       </geometry>
-      <material name="">
+      <material name="green">
         <color rgba="0.79216 0.81961 0.93333 1" />
       </material>
     </visual>
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="file://$(find description)/meshes/DriverWheel.STL" />
+        <!-- <mesh filename="file://$(find description)/meshes/DriverWheel.STL" /> -->
+        <sphere radius="0.05"/>
       </geometry>
     </collision>
   </link>
-  <joint name="DW_Joint" type="continuous">
-    <origin xyz="0.17907 -0.0127 -0.0127" rpy="0 0 0" />
+  <joint name="DW_Joint" type="fixed"> <origin xyz="0.17907 -0.0127 -0.0127" rpy="0 0 0" />
     <parent link="Base" />
     <child link="DriverWheel" />
-    <axis xyz="1 0 0" />
-    <limit effort="10" velocity="0" />
-    <mimic joint="DS_Joint" multiplier="1.0" offset="0.0"/>
   </joint>
 
   <gazebo reference="DriverWheel">
     <material>Gazebo/Blue</material>
-      <mu1 value="0.001"/>
-      <mu2 value="0.001"/>
+      <!-- <mu1 value="0.001"/>
+      <mu2 value="0.001"/> -->
+      <mu1 value="0.0"/> <!-- ARE WE ALLOWED TO DO THIS??? -->
+      <mu2 value="0.0"/>
+      <!-- <kp value="10000000.0" />
+      <kd value="1.0" /> -->
   </gazebo>
 
-  <link name="DriverSprocket">
+  <!-- Rear Caster Driver Wheel and Joint -->
+  <link name="RearDriverWheel">
     <inertial>
-      <origin xyz="0.0097746 -3.5292E-09 -5.2457E-08" rpy="0 0 0" />
-      <mass value="0.054042" />
-      <inertia ixx="5.3673E-05" ixy="-1.8152E-12" ixz="1.8049E-14" iyy="2.7245E-05"
-        iyz="-1.9672E-11" izz="2.7245E-05" />
+      <origin xyz="-0.030264 6.665E-05 1.2263E-10" rpy="0 0 0" />
+      <mass value="0.5" />
+      <inertia ixx="3.7938E-05" ixy="-6.4305E-20" ixz="-1.3428E-19" iyy="1.9406E-05"
+        iyz="2.6768E-13" izz="1.9256E-05" />
     </inertial>
+    <!-- use sprocket for visual (it wont spin unfortunately) -->
     <visual>
-      <origin xyz="0 0 0" rpy="0 0 0" />
+      <origin xyz="-0.0397 0 0" rpy="0 0 0" />
       <geometry>
         <mesh filename="file://$(find description)/meshes/DriverSprocket.STL" />
       </geometry>
-      <material name="">
+      <material name="blue">
         <color rgba="0.79216 0.81961 0.93333 1" />
       </material>
     </visual>
     <collision>
+      <origin xyz="-0.030264 6.665E-05 1.2263E-10" rpy="0 0 0" />
+      <geometry>
+        <!-- <mesh filename="file://$(find description)/meshes/DriverWheel.STL" /> -->
+        <sphere radius="0.05"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="RDW_Joint" type="fixed"> <origin xyz="0.17907 -0.0127 -0.25959" rpy="0 0 0" />
+    <parent link="Base" />
+    <child link="RearDriverWheel" />
+  </joint>
+
+  <gazebo reference="RearDriverWheel">
+    <material>Gazebo/Pink</material>
+      <!-- <mu1 value="0.001"/>
+      <mu2 value="0.001"/> -->
+      <mu1 value="0.0"/> 
+      <mu2 value="0.0"/>
+      <!-- <kp value="10000000.0" />
+      <kd value="1.0" /> -->
+  </gazebo>
+
+  <!-- Invisible driver wheel that allows Terrence to turn accurately -->
+  <link name="DriverSprocket">
+    <inertial>
+      <origin xyz="0.0097746 -3.5292E-09 -5.2457E-08" rpy="0 0 0" />
+      <mass value="0.5" />
+      <inertia ixx="5.3673E-05" ixy="-1.8152E-12" ixz="1.8049E-14" iyy="2.7245E-05"
+        iyz="-1.9672E-11" izz="2.7245E-05" />
+    </inertial>
+    <!-- <visual>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
         <mesh filename="file://$(find description)/meshes/DriverSprocket.STL" />
       </geometry>
+      <material name="blue">
+        <color rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual> -->
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <!-- <mesh filename="file://$(find description)/meshes/DriverSprocket.STL" /> -->
+        <sphere radius="0.05"/>
+      </geometry>
     </collision>
   </link>
   <joint name="DS_Joint" type="continuous">
-    <origin xyz="0.14605 -0.012431 -0.25959" rpy="0 0 0" />
+    <origin xyz="0.14605 -0.0127 -0.136145" rpy="0 0 0" />
     <parent link="Base" />
     <child link="DriverSprocket" />
     <axis xyz="1 0 0" />
@@ -128,7 +176,7 @@
   <link name="PassWheel">
     <inertial>
       <origin xyz="0.020612 8.4006E-05 -0.00023239" rpy="0 0 0" />
-      <mass value="0.046607" />
+      <mass value="0.5" />
       <inertia ixx="3.7938E-05" ixy="-6.4876E-20" ixz="-1.3466E-19" iyy="1.9406E-05"
         iyz="-3.2644E-10" izz="1.9256E-05" />
     </inertial>
@@ -137,57 +185,92 @@
       <geometry>
         <mesh filename="file://$(find description)/meshes/PassWheel.STL" />
       </geometry>
-      <material name="">
+      <material name="purple">
         <color rgba="0.79216 0.81961 0.93333 1" />
       </material>
     </visual>
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="file://$(find description)/meshes/PassWheel.STL" />
+        <!-- <mesh filename="file://$(find description)/meshes/PassWheel.STL" /> -->
+        <sphere radius="0.05"/>
       </geometry>
     </collision>
   </link>
-  <joint name="PW_Joint" type="continuous">
-    <origin xyz="-0.17907 -0.0127 -0.0127" rpy="0 0 0" />
+  <joint name="PW_Joint" type="fixed"> <origin xyz="-0.17907 -0.0127 -0.0127" rpy="0 0 0" />
     <parent link="Base" />
     <child link="PassWheel" />
-    <axis xyz="1 0 0" />
-    <limit effort="10" velocity="0" />
-    <mimic joint="PS_Joint" multiplier="1.0" offset="0.0"/>
   </joint>
 
   <gazebo reference="PassWheel">
     <material>Gazebo/Blue</material>
-      <mu1 value="0.001"/>
-      <mu2 value="0.001"/>
+      <mu1 value="0.0"/>
+      <mu2 value="0.0"/>
+  </gazebo>
+
+  <!-- rear pass wheel -->
+  <link name="RearPassWheel">
+    <inertial>
+      <origin xyz="0.020612 8.4006E-05 -0.00023239" rpy="0 0 0" />
+      <mass value="0.5" />
+      <inertia ixx="3.7938E-05" ixy="-6.4876E-20" ixz="-1.3466E-19" iyy="1.9406E-05"
+        iyz="-3.2644E-10" izz="1.9256E-05" />
+    </inertial>
+    <!-- sprocket visual - again, it wont move -->
+    <visual>
+      <origin xyz="0.0397 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="file://$(find description)/meshes/PassSprocket.STL" />
+      </geometry>
+      <material name="gray">
+        <color rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0.020612 8.4006E-05 -0.00023239" rpy="0 0 0" />
+      <geometry>
+        <!-- <mesh filename="file://$(find description)/meshes/PassWheel.STL" /> -->
+        <sphere radius="0.05"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="RPW_Joint" type="fixed"> <origin xyz="-0.17907 -0.0127 -0.25959" rpy="0 0 0" />
+    <parent link="Base" />
+    <child link="RearPassWheel" />
+  </joint>
+
+  <gazebo reference="RearPassWheel">
+    <material>Gazebo/White</material>
+      <mu1 value="0.0"/>
+      <mu2 value="0.0"/>
   </gazebo>
 
   <link name="PassSprocket">
     <inertial>
       <origin xyz="-0.0056813 -3.6211E-09 -5.2434E-08" rpy="0 0 0" />
-      <mass value="0.054042" />
+      <mass value="0.5" />
       <inertia ixx="5.3673E-05" ixy="-1.8152E-12" ixz="2.2008E-14" iyy="2.7245E-05"
         iyz="-2.0018E-11" izz="2.7245E-05" />
     </inertial>
-    <visual>
+    <!-- <visual>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
         <mesh filename="file://$(find description)/meshes/PassSprocket.STL" />
       </geometry>
-      <material name="">
+      <material name="gray">
         <color rgba="0.79216 0.81961 0.93333 1" />
       </material>
-    </visual>
+    </visual> -->
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="file://$(find description)/meshes/PassSprocket.STL" />
+        <!-- <mesh filename="file://$(find description)/meshes/PassSprocket.STL" /> -->
+        <sphere radius="0.05"/>
       </geometry>
     </collision>
   </link>
   <joint name="PS_Joint" type="continuous">
-    <origin xyz="-0.14605 -0.012969 -0.25959" rpy="0 0 0" />
+    <origin xyz="-0.14605 -0.0127 -0.136145" rpy="0 0 0" />
     <parent link="Base" />
     <child link="PassSprocket" />
     <axis xyz="1 0 0" />
@@ -210,7 +293,7 @@
       <geometry>
         <mesh filename="file://$(find description)/meshes/Loader.STL" />
       </geometry>
-      <material name="">
+      <material name="yellow">
         <color rgba="1 0 0 1" />
       </material>
     </visual>
@@ -247,7 +330,7 @@
       <geometry>
         <mesh filename="file://$(find description)/meshes/Hopper.STL" />
       </geometry>
-      <material name="">
+      <material name="pink">
         <color rgba="0.79216 0.81961 0.93333 1" />
       </material>
     </visual>
@@ -282,7 +365,7 @@
       <geometry>
         <mesh filename="file://$(find description)/meshes/Door.STL" />
       </geometry>
-      <material name="">
+      <material name="silver">
         <color rgba="0.79216 0.81961 0.93333 1" />
       </material>
     </visual>
@@ -304,5 +387,18 @@
   <gazebo reference="Door">
     <material>Gazebo/White</material>
   </gazebo>
+
+  <!-- Mimic joints don't work in New Gazebo because it's dumb and stupid -->
+  <!-- Mimic joints -->
+  <!-- <gazebo>
+    <plugin filename="gz-sim-mimic-joint-system" name="gz::sim::systems::MimicJoint">
+        <joint>DS_Joint</joint>
+        <mimicJoint>DW_Joint</mimicJoint>
+    </plugin>
+    <plugin filename="gz-sim-mimic-joint-system" name="gz::sim::systems::MimicJoint">
+        <joint>PS_Joint</joint>
+        <mimicJoint>PW_Joint</mimicJoint>
+    </plugin>
+  </gazebo> -->
 
 </robot>

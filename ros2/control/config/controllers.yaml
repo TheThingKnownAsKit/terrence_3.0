@@ -14,7 +14,7 @@ terrence_controller:
     right_joint_name: "PS_Joint"
 
     wheel_radius_m: 0.085
-    wheel_separation_m: 0.42
+    wheel_separation_m: 0.495
 
     max_wheel_radps: 10.0
     cmd_timeout_s: 0.25

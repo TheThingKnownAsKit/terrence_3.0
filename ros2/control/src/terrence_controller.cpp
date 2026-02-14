@@ -44,7 +44,7 @@ namespace terrence_controller
             auto_declare<std::string>("hopper_joint_name", "HopperJoint");
 
             auto_declare<double>("wheel_radius_m", 0.085);
-            auto_declare<double>("wheel_separation_m", 0.42);
+            auto_declare<double>("wheel_separation_m", 0.495);
 
             auto_declare<double>("max_wheel_radps", 10.0);
             auto_declare<double>("cmd_timeout_s", 0.25);

@@ -30,6 +30,8 @@ def generate_launch_description():
         launch_arguments={'gz_args': '-r ros2/description/worlds/empty.sdf'}.items(),
     )
     
+    # Sad and futile attempt at making the mimic joints work.
+     
     # # 1. Start environment (Bullet Featherstone)
     # gazebo = IncludeLaunchDescription(
     #     PythonLaunchDescriptionSource(

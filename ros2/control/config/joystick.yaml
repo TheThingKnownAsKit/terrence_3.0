@@ -9,3 +9,4 @@ teleop_twist_joy_node:
     scale_angular:
       yaw: 1.0
     require_enable_button: false
+    ros__parameters: 0.30

@@ -20,8 +20,7 @@ def generate_launch_description():
                 executable='joy_node',
                 name='joy_node',
                 parameters=[{
-                    'device_id': 0,
-                    'deadzone': 0.05
+                    'device_id': 0
                 }]
             ),
             # Teleop twist controller

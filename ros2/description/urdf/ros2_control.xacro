@@ -6,7 +6,7 @@
                 <plugin>terrence_hwc/TerrenceHWC</plugin>
                 <param name="left_wheel_name">DS_Joint</param>
                 <param name="right_wheel_name">PS_Joint</param>
-                <param name="loop_rate">30</param>
+                <param name="loop_rate">100</param>
                 <param name="device">/dev/ttyACM0</param>
                 <param name="baud_rate">9600</param>
                 <param name="timeout_ms">20</param>

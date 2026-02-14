@@ -24,12 +24,35 @@ void setup() {
 
 void loop() {
     if (!Serial.available()) return;
-    String command = Serial.readStringUntil('\n');  // read until timeout
-    command.trim();  // remove tailing whitespace
-    if (command.length() < 1) return;
 
-    const char command_type = command.charAt(0);
-    const char* c_str_command = command.c_str() + (sizeof(char) * 2);
+    // DRAIN THE BUFFER
+    // We want the VERY LAST complete command sent by the PC.
+    // Everything before that is outdated lag.
+    String latest_command = "";
+    
+    while (Serial.available() > 0) {
+        // limit how much we read per loop to prevent hanging if data comes in faster than we can read
+        // (Unlikely with USB serial, but good safety)
+        String temp_command = Serial.readStringUntil('\n');
+        temp_command.trim();
+        
+        // If it's a valid command string, save it as the "candidate"
+        if (temp_command.length() > 0) {
+            latest_command = temp_command;
+        }
+    }
+
+    // 3. If we didn't find a valid command after draining, exit.
+    if (latest_command.length() == 0) return;
+
+    // 4. EXECUTE ONLY THE LATEST COMMAND
+    const char command_type = latest_command.charAt(0);
+
+    // segfault guard (god I hate c++ and c so much)
+    if (latest_command.length() < 3) return;
+
+    // Pointer math: skip "m " (2 chars)
+    const char* c_str_command = latest_command.c_str() + 2;
 
     switch (command_type)
     {

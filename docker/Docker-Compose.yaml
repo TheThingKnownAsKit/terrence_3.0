@@ -37,5 +37,6 @@ services:
     group_add:
       - dialout
       - video
+      - input
     # devices:
     #   - /dev/ttyACM0:/dev/ttyACM0

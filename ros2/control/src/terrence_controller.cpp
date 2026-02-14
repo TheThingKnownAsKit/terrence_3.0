@@ -231,6 +231,7 @@ namespace terrence_controller
     {
         // Stop outputs
         setWheelCommandsRadps(0.0, 0.0);
+        enterMode(Mode::IDLE);
         RCLCPP_INFO(get_node()->get_logger(), "Deactivated TerrenceController.");
         return controller_interface::CallbackReturn::SUCCESS;
     }

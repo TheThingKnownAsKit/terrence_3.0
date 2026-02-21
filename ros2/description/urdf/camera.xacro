@@ -34,7 +34,7 @@
 
     <gazebo reference="camera_link">
         <material>Gazebo/Red</material>
-        <sensor name="camera" type="camera">
+        <sensor name="rgbd_camera" type="rgbd_camera">
             <pose> 0 0 0 0 0 0 </pose>
             <visualize>true</visualize>
             <update_rate>10</update_rate>
@@ -51,7 +51,7 @@
                     <far>8.0</far>
                 </clip>
             </camera>
-            <topic>camera/image_raw</topic>
+            <topic>camera</topic>
             <gz_frame_id>camera_link_optical</gz_frame_id>
         </sensor>
     </gazebo>

@@ -133,6 +133,12 @@ def generate_launch_description():
         )
     )
     
+    foxglove = Node(
+        package='foxglove_bridge',
+        executable='foxglove_bridge',
+        name='foxglove_bridge',
+    )
+    
     # Calculates the map to odom transform
     slam_toolbox = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -161,6 +167,7 @@ def generate_launch_description():
         teleop_node,
         delay_joint_state_broadcaster_spawner,
         delay_terrence_controller_spawner,
+        foxglove,
         slam_toolbox,
         nav2_bringup,
     ])

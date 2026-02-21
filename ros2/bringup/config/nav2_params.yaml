@@ -211,7 +211,7 @@ local_costmap:
         z_voxels: 16
         max_obstacle_height: 2.0
         mark_threshold: 0
-        observation_sources: scan
+        observation_sources: scan pointcloud
         scan:
           topic: /scan
           max_obstacle_height: 2.0
@@ -399,7 +399,7 @@ collision_monitor:
       min_points: 6
       visualize: False
       enabled: True
-    observation_sources: ["scan", "pointcloud"]
+    observation_sources: ["scan"]
     scan:
       type: "scan"
       topic: "scan"
